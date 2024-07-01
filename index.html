@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小浣熊的勞動法冒險</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .story, .question {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+        }
+        button {
+            margin: 5px 0;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        #score {
+            font-size: 1.5em;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>小浣熊的勞動法冒險</h1>
+    <div id="game-container">
+        <div id="story" class="story"></div>
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const game = {
+            currentQuestion: 0,
+            score: 0,
+            questions: [
+                {
+                    story: "小明第一天上班,老闆說要工作10小時。小明記得有規定,但不確定是多少。",
+                    question: "請問每天正常工作時間最多應該是幾小時?",
+                    options: ["8小時", "10小時", "12小時", "沒有限制"],
+                    answer: 0
+                },
+                {
+                    story: "小明加班了,老闆說不給加班費。小明覺得不對,但不知道該怎麼辦。",
+                    question: "關於加班費,下列哪項說法正確?",
+                    options: ["加班不一定要給錢", "加班一定要給加班費", "只有經理級以上才有加班費", "加班費可以用補休代替"],
+                    answer: 1
+                },
+                {
+                    story: "小明連續工作了12天,感到很疲憊。他想知道是否有規定休息日。",
+                    question: "根據法律,每七天中應該有幾天休息日?",
+                    options: ["1天", "2天", "3天", "沒有規定"],
+                    answer: 1
+                },
+                {
+                    story: "小明工作滿一年了,聽說可以放特別休假,但不知道有幾天。",
+                    question: "工作滿一年的勞工,可以享有幾天特別休假?",
+                    options: ["3天", "7天", "10天", "14天"],
+                    answer: 1
+                },
+                {
+                    story: "小明的表弟才14歲,想來工廠打工。小明記得有年齡限制,但不確定。",
+                    question: "legally可以工作的最低年齡是幾歲?",
+                    options: ["12歲", "14歲", "15歲", "16歲"],
+                    answer: 2
+                },
+                {
+                    story: "小明的同事小美懷孕了,老闆想要求她晚上加班。小明覺得這樣不對。",
+                    question: "關於懷孕的女性勞工,下列哪項說法正確?",
+                    options: ["可以要求正常加班", "不能要求夜間工作", "可以從事危險性工作", "沒有特別保護"],
+                    answer: 1
+                },
+                {
+                    story: "小明不小心在工作中受傷了,不知道該怎麼辦。",
+                    question: "關於職業災害,下列哪項說法正確?",
+                    options: ["自己負責", "公司全額賠償", "由勞保給付", "公司應該依法補償"],
+                    answer: 3
+                },
+                {
+                    story: "小明的叔叔工作了30年,想要退休。小明好奇退休的條件。",
+                    question: "下列哪項是正確的退休條件?",
+                    options: ["工作10年以上", "工作15年且年滿55歲", "工作20年以上", "工作25年以上"],
+                    answer: 1
+                },
+                {
+                    story: "有一天,有人來工廠檢查。小明不知道這是怎麼回事。",
+                    question: "關於勞動檢查,下列哪項說法正確?",
+                    options: ["只有大公司才會被檢查", "檢查員必須出示證件", "公司可以拒絕檢查", "檢查只看工資問題"],
+                    answer: 1
+                },
+                {
+                    story: "小明聽說公司要舉行勞資會議,但不知道這是做什麼的。",
+                    question: "關於勞資會議,下列哪項說法正確?",
+                    options: ["只有老闆參加", "只討論加薪問題", "勞資雙方共同討論", "政府主持的會議"],
+                    answer: 2
+                }
+            ],
+            start() {
+                this.showQuestion();
+            },
+            showQuestion() {
+                if (this.currentQuestion >= this.questions.length) {
+                    this.endGame();
+                    return;
+                }
+                const q = this.questions[this.currentQuestion];
+                document.getElementById('story').innerHTML = q.story;
+                document.getElementById('question').innerHTML = q.question;
+                const optionsHtml = q.options.map((option, index) => 
+                    `<button onclick="game.checkAnswer(${index})">${option}</button>`
+                ).join('');
+                document.getElementById('options').innerHTML = optionsHtml;
+            },
+            checkAnswer(answerIndex) {
+                const q = this.questions[this.currentQuestion];
+                if (answerIndex === q.answer) {
+                    this.score += 10;
+                    document.getElementById('result').innerHTML = "答對了!加10分!";
+                } else {
+                    document.getElementById('result').innerHTML = "答錯了,正確答案是: " + q.options[q.answer];
+                }
+                this.currentQuestion++;
+                setTimeout(() => {
+                    document.getElementById('result').innerHTML = "";
+                    this.showQuestion();
+                }, 2000);
+            },
+            endGame() {
+                let message = `遊戲結束!你的總分是: <span id="score">${this.score}</span><br>`;
+                if (this.score >= 90) {
+                    message += "太棒了!你是勞動法專家!";
+                } else if (this.score >= 70) {
+                    message += "不錯喔!再多學習一下就能成為專家了!";
+                } else if (this.score >= 50) {
+                    message += "還可以,繼續加油!";
+                } else {
+                    message += "需要多多學習喔,相信你下次一定會更好!";
+                }
+                document.getElementById('game-container').innerHTML = message;
+            }
+        };
+
+        game.start();
+    </script>
+</body>
+</html>
